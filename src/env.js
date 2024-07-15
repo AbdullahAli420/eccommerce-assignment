@@ -8,6 +8,10 @@ export const env = createEnv({
    */
   server: {
     DATABASE_URL: z.string().url(),
+    smtp_email: z.string(),
+    smtp_url: z.string(),
+    api_key: z.string(),
+    salt_code: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -28,6 +32,10 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    smtp_email: process.env.smtp_email,
+    smtp_url: process.env.smtp_url,
+    api_key: process.env.api_key,
+    salt_code: process.env.salt_code,
     NODE_ENV: process.env.NODE_ENV,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
