@@ -1,6 +1,6 @@
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { number, z } from "zod";
-import { faker, ne } from "@faker-js/faker";
+import { z } from "zod";
+import { faker } from "@faker-js/faker";
 import jwt from "jsonwebtoken";
 import { env } from "~/env";
 
@@ -23,7 +23,7 @@ export const categorieRouter = createTRPCRouter({
     .input(
       z.object({ page: z.number(), token: z.string(), user_id: z.number() }),
     )
-    .use(async ({ ctx, next, input }) => {
+    .use(async ({ next, input }) => {
       const { token } = input;
       if (!token) throw new Error("login");
       const decoded = jwt.verify(token, env.JWT_SECRET_KEY);
@@ -61,7 +61,7 @@ export const categorieRouter = createTRPCRouter({
         check: z.boolean(),
       }),
     )
-    .use(async ({ ctx, next, input }) => {
+    .use(async ({ next, input }) => {
       const { token } = input;
       if (!token) throw new Error("login");
       const decoded = jwt.verify(token, env.JWT_SECRET_KEY);

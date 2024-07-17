@@ -5,21 +5,21 @@ import * as bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
-// const cookieStore = cookies()
-
 export const userRouter = createTRPCRouter({
   signup: publicProcedure
     .input(
       z.object({ name: z.string(), email: z.string(), password: z.string() }),
     )
     .mutation(async ({ ctx, input }) => {
-      let { name, email, password } = input;
+      const { name, email } = input;
       const salt = bcrypt.genSaltSync(parseInt(env.salt_code));
-      password = bcrypt.hashSync(password, salt);
+      input.password = bcrypt.hashSync(input.password, salt);
       const emailCheck = await ctx.db.user.findUnique({ where: { email } });
       console.log(emailCheck);
       if (emailCheck === null)
-        await ctx.db.user.create({ data: { name, email, password } });
+        await ctx.db.user.create({
+          data: { name, email, password: input.password },
+        });
       else throw new Error("Email already exist");
       return true;
     }),
@@ -43,15 +43,15 @@ export const userRouter = createTRPCRouter({
           pass: "8dcTVxkjEpDS15UBQN",
         },
       });
-      var mailOptions = {
+      const mailOptions = {
         from: env.smtp_email,
         to: email,
         subject: "Verify your email",
         html: `This is your one-time <b>verification</b> code:<b>${verification_code}</b>`,
       };
-      transporter.sendMail(mailOptions, (error: any) => {
+      transporter.sendMail(mailOptions, (error: Error | null) => {
         if (error) {
-          throw error;
+          throw new Error(error.message);
         }
       });
 

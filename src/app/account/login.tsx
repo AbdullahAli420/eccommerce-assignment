@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import Button from "../_components/button";
 
-export default function ({
+export default function Login({
   email,
   setEmail,
   setForm,
 }: {
-  email: any;
-  setEmail: any;
-  setForm: any;
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  setForm: React.Dispatch<React.SetStateAction<number>>;
 }) {
   // const [email, setEmail] = useState('')
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { mutate, error, data } = api.user.login.useMutation();
+  const { mutate, error } = api.user.login.useMutation();
   const [psType, setPsType] = useState("password");
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ export default function ({
     mutate(
       { email, password },
       {
-        onError: (err) => setLoading(false),
+        onError: () => setLoading(false),
         onSuccess: (data) => {
           localStorage.setItem("token", data?.token);
           localStorage.setItem("user_id", data?.userId.toString());
@@ -81,7 +81,7 @@ export default function ({
           <Button value="LOGIN" loading={loading} />
         </form>
         <div className="w-100 p-6 text-center">
-          Don't have an Account?{" "}
+          Don&apos;t have an Account?{" "}
           <button className="font-bold" onClick={() => setForm(0)}>
             SIGN UP
           </button>

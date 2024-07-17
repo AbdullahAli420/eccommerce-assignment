@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import VerificationInput from "./verificationInput/verificationInput";
 import Button from "../_components/button";
@@ -8,9 +8,9 @@ export default function Verify({
   setEmail,
   setForm,
 }: {
-  email: any;
-  setEmail: any;
-  setForm: any;
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  setForm: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [verification_code, setCode] = useState<string[]>(
     new Array(8).fill(""),
@@ -27,7 +27,7 @@ export default function Verify({
       sendMailMutation.mutate(
         { email: email },
         {
-          onError: (error) => {
+          onError: () => {
             setMailLoading(false);
           },
           onSuccess: (data) => {
@@ -50,13 +50,13 @@ export default function Verify({
         {
           verification_code: code,
           email,
-          hash: localStorage.getItem("hash") || "",
+          hash: localStorage.getItem("hash") ?? "",
         },
         {
-          onError: (error) => {
+          onError: () => {
             setVerifyLoading(false);
           },
-          onSuccess: (data) => {
+          onSuccess: () => {
             setVerifyLoading(false);
             setForm(2);
             localStorage.removeItem("hash");
@@ -103,7 +103,7 @@ export default function Verify({
             <Button value="VERIFY" loading={verifyLoading} />
           </form>
           <div className="w-100 pt-6 text-center">
-            Doesn't receive code?{" "}
+            Doesn&apos;t receive code?{" "}
             <button className="font-bold" onClick={() => sendCodeReq}>
               Resend
             </button>
@@ -115,7 +115,7 @@ export default function Verify({
             </button>
           </div>
           <div className="w-100 pb-2 text-center">
-            Don't have an Account?{" "}
+            Don&apos;t have an Account?{" "}
             <button className="font-bold" onClick={() => setForm(0)}>
               SIGN UP
             </button>

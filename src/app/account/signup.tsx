@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { api } from "~/trpc/server"
 import { api } from "~/trpc/react";
 import Button from "../_components/button";
@@ -9,13 +9,13 @@ export default function Signup({
   setEmail,
   setForm,
 }: {
-  email: any;
-  setEmail: any;
-  setForm: any;
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  setForm: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const { mutate, error, data } = api.user.signup.useMutation();
+  const { mutate, error } = api.user.signup.useMutation();
   const [psType, setPsType] = useState("password");
   const [errMsg, setErrMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,10 +28,10 @@ export default function Signup({
         mutate(
           { name, email, password },
           {
-            onError: (error) => {
+            onError: () => {
               setLoading(false);
             },
-            onSuccess: (data) => {
+            onSuccess: () => {
               setLoading(false);
               setForm(1);
             },

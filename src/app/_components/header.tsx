@@ -14,7 +14,7 @@ export default function Header() {
         </Link>
         <button
           className="mx-2 text-sm"
-          onClick={(e) => {
+          onClick={() => {
             localStorage.removeItem("token");
             localStorage.removeItem("user_id");
             router.push("/account");

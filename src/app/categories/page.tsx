@@ -3,31 +3,35 @@ import { api } from "~/trpc/react";
 import "./style.css";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-export default function () {
+
+interface Category {
+  id: number;
+  name: string;
+}
+export default function Categories() {
   /*const res: any = api.category.getCategories.useQuery({
     page,
     token: token,
   });*/
-
-  const [pages, setPages]: any = useState();
+  const [pages, setPages] = useState<number[]>([]);
   const getCategories = api.category.getCategories.useMutation();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const { mutate, error } = api.category.checkCategory.useMutation();
+  const { mutate } = api.category.checkCategory.useMutation();
   const [page, setPage] = useState(0);
   const [token, setToken] = useState("");
-  const [categories, setCategories]: any = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [checkedCategories, setCheckedCategories] = useState(new Set());
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const fetchData = (page: number) => {
-    const Token = localStorage?.getItem("token") || "";
+    const Token = localStorage?.getItem("token") ?? "";
     setToken(Token);
     getCategories.mutate(
       {
         token: Token,
         page,
-        user_id: parseInt(localStorage?.getItem("user_id") || "") || -1,
+        user_id: parseInt(localStorage?.getItem("user_id") ?? "") || -1,
       },
       {
         onSuccess: (data) => {
@@ -53,15 +57,15 @@ export default function () {
         fetchData(0);
       }
     }
-  }, [getCategories.data, getCategories.error]);
+  });
 
-  const checkCategory = (id: string) => {
+  const checkCategory = (id: number) => {
     setLoading(true);
     mutate(
       {
         token: token,
-        category_id: parseInt(id),
-        user_id: parseInt(localStorage.getItem("user_id") || "-1"),
+        category_id: id,
+        user_id: parseInt(localStorage.getItem("user_id") ?? "-1"),
         check: checkedCategories.has(id),
       },
       {
@@ -90,7 +94,7 @@ export default function () {
             </div>
 
             {getCategories.data && !loading ? (
-              categories.map((category: any, index: number) => {
+              categories.map((category: Category, index: number) => {
                 return (
                   <div key={index}>
                     <div className="custom-checkbox my-4" key={index}>
@@ -101,7 +105,7 @@ export default function () {
                             inputRefs.current[index] = el;
                           }}
                           className="form-checkbox text-black"
-                          onChange={(e) => {
+                          onChange={() => {
                             checkCategory(category.id);
                           }}
                           checked={
@@ -146,7 +150,7 @@ export default function () {
                   ""
                 )}
                 {page >= 4 && "..."}
-                {pages.map((_: any, index: number) => {
+                {pages.map((page: number, index: number) => {
                   return (
                     <button
                       key={index}

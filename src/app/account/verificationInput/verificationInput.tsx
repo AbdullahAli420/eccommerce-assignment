@@ -4,8 +4,8 @@ export default function VerificationInput({
   values,
   setValues,
 }: {
-  values: any;
-  setValues: any;
+  values: string[];
+  setValues: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
   // const [values, setValues] = useState<string[]>(new Array(8).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
