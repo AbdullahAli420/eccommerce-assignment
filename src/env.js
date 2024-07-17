@@ -12,6 +12,8 @@ export const env = createEnv({
     smtp_url: z.string(),
     api_key: z.string(),
     salt_code: z.string(),
+    JWT_SECRET_KEY: z.string(),
+    TOKEN_HEADER_KEY : z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -37,6 +39,8 @@ export const env = createEnv({
     api_key: process.env.api_key,
     salt_code: process.env.salt_code,
     NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
+    TOKEN_HEADER_KEY: process.env.TOKEN_HEADER_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

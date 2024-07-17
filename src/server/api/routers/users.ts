@@ -1,82 +1,100 @@
-import axios from "axios";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { env } from "~/env";
-import { cookies } from "next/headers";
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+
+// const cookieStore = cookies()
 
 export const userRouter = createTRPCRouter({
-    signup: publicProcedure
-        .input(z.object({ name: z.string(), email: z.string(), password: z.string() }))
-        .mutation(async ({ ctx, input }) => {
-            const { name, email, password } = input;
-            const user = await ctx.db.user.create({ data: { name, email, password } })
-            cookies().set('user_email', user.email, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 60 * 60 * 24 * 7, // One week
-                path: '/',
-            })
-            // if (!user.verified) throw
-        }),
-    sendMail: publicProcedure
-        .input(z.object({ email: z.string() }))
-        .mutation(async ({ ctx, input }) => {
-            const { email } = input;
-            //check if user exists or not
-            const user = await ctx.db.user.findUnique({ where: { email } })
-            if (!user) throw new Error("User not found")
-            if (user.verified) throw new Error("User already verified")
-            //verification code sent
-            const verification_code = Math.random() * 99999999
-            await axios.post(env.smtp_url, null, {
-                params: {
-                    to: email,
-                    subject: "Verify your email",
-                    bodyHtml: `This is your one-time <b>verification</b> code:<b>${verification_code}</b>`,
-                    from: env.smtp_email,
-                    fromName: 'Muhammad Abdullah Ali'
-                }
-            })
-            //verification code saving in cookie by using next/cookies
-            bcrypt.hash(verification_code.toString(), env.salt_code, (err, hash) => {
-                if (err) throw err
-                cookies().set('verification_code', hash, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7, // One week
-                    path: '/',
-                })
-            })
-            return true
-        }),
-    verify: publicProcedure
-        .input(z.object({ verification_code: z.string() }))
-        .mutation(async ({ ctx, input }) => {
-            const { verification_code } = input;
-            const cookie = cookies().get('verification_code')?.value
-            if (!cookie) throw new Error("Verification code not found")
-            bcrypt.compare(verification_code, cookie, (err, res) => {
-                if (err) throw err
-                if (res) {
-                    const user_email = cookies().get('user_email')?.value
-                    ctx.db.user.update({
-                        where: { email: user_email },
-                        data: {
-                            verified: true,
-                        }
-                    })
-                }
-            })
-        }),
-    login: publicProcedure
-        .input(z.object({ email: z.string(), password: z.string() }))
-        .query(async ({ ctx, input }) => {
-            const { email, password } = input
-            const user = await ctx.db.user.findUnique({ where: { email } })
-            if (!user) throw new Error("User not found")
-            const valid = await bcrypt.compare(password, user.password)
-            if (!valid) throw new Error("Invalid password")
-            return true
-        })
-})
+  signup: publicProcedure
+    .input(
+      z.object({ name: z.string(), email: z.string(), password: z.string() }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      let { name, email, password } = input;
+      const salt = bcrypt.genSaltSync(parseInt(env.salt_code));
+      password = bcrypt.hashSync(password, salt);
+      const emailCheck = await ctx.db.user.findUnique({ where: { email } });
+      console.log(emailCheck);
+      if (emailCheck === null)
+        await ctx.db.user.create({ data: { name, email, password } });
+      else throw new Error("Email already exist");
+      return true;
+    }),
+  sendMail: publicProcedure
+    .input(z.object({ email: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { email } = input;
+      console.log("headers");
+      //check if user exists or not
+      const user = await ctx.db.user.findUnique({ where: { email } });
+      if (!user) throw new Error("User not found");
+      if (user.verified) throw new Error("User already verified");
+
+      //send mail
+      const verification_code = Math.floor(Math.random() * 99999999).toString();
+      const transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        auth: {
+          user: "jamil.oreilly82@ethereal.email",
+          pass: "8dcTVxkjEpDS15UBQN",
+        },
+      });
+      var mailOptions = {
+        from: env.smtp_email,
+        to: email,
+        subject: "Verify your email",
+        html: `This is your one-time <b>verification</b> code:<b>${verification_code}</b>`,
+      };
+      transporter.sendMail(mailOptions, (error: any) => {
+        if (error) {
+          throw error;
+        }
+      });
+
+      //verification code saving in cookie by using
+      const salt = bcrypt.genSaltSync(parseInt(env.salt_code));
+      const hash = bcrypt.hashSync(verification_code, salt);
+      return { res: true, verification_code: hash };
+    }),
+  verify: publicProcedure
+    .input(
+      z.object({
+        verification_code: z.string(),
+        email: z.string(),
+        hash: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { verification_code, email, hash } = input;
+      const compare = await bcrypt.compare(verification_code, hash);
+      if (!compare) throw new Error("Verification code not matches");
+      else {
+        await ctx.db.user.update({
+          where: { email: email },
+          data: {
+            verified: true,
+          },
+        });
+      }
+      return true;
+    }),
+  login: publicProcedure
+    .input(z.object({ email: z.string(), password: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { email, password } = input;
+      const user = await ctx.db.user.findUnique({ where: { email } });
+      if (!user) throw new Error("User not found");
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) throw new Error("Invalid password");
+      if (!user.verified) throw new Error("User is not verified");
+      return {
+        res: true,
+        token: jwt.sign(user, env.JWT_SECRET_KEY),
+        userId: user.id,
+      };
+    }),
+});
