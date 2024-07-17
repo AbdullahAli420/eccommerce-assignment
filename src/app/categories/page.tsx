@@ -9,10 +9,6 @@ interface Category {
   name: string;
 }
 export default function Categories() {
-  /*const res: any = api.category.getCategories.useQuery({
-    page,
-    token: token,
-  });*/
   const [pages, setPages] = useState<number[]>([]);
   const getCategories = api.category.getCategories.useMutation();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -24,6 +20,7 @@ export default function Categories() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+
   const fetchData = (page: number) => {
     const Token = localStorage?.getItem("token") ?? "";
     setToken(Token);
@@ -50,6 +47,7 @@ export default function Categories() {
       },
     );
   };
+
   useEffect(() => {
     if (!localStorage?.getItem("token")) router.push("/account");
     else {
@@ -57,7 +55,7 @@ export default function Categories() {
         fetchData(0);
       }
     }
-  });
+  }, [categories]);
 
   const checkCategory = (id: number) => {
     setLoading(true);
