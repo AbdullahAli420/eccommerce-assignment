@@ -37,8 +37,14 @@ export default function Signup({
             },
           },
         );
-      else setErrMsg("Password must be of length 8");
-    } else setErrMsg("Please fill all credentials:");
+      else {
+        setErrMsg("Password must be of length 8");
+        setLoading(false);
+      }
+    } else {
+      setErrMsg("Please fill all credentials:");
+      setLoading(false);
+    }
   };
 
   return (
