@@ -27,7 +27,6 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ email: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { email } = input;
-      console.log("headers");
       //check if user exists or not
       const user = await ctx.db.user.findUnique({ where: { email } });
       if (!user) throw new Error("User not found");
