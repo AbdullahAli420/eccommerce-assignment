@@ -21,7 +21,7 @@ export default function Signup({
   const [loading, setLoading] = useState(false);
 
   const createAccount = async (e: React.ChangeEvent<HTMLFormElement>) => {
-    console.log("CA");
+    setLoading(true);
     e.preventDefault();
     if (email !== "" && password !== "" && name !== "") {
       if (password.length >= 8)
