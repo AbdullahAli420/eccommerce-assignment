@@ -81,7 +81,8 @@ export default function Login({
           <Button value="LOGIN" loading={loading} />
         </form>
         <div className="text-center">
-          Use &quot;example@gmail.com&quot; & &quot;example1&quot; for testing!
+          Use &quot; example@gmail.com &quot; & &quot; example1 &quot; for
+          testing!
         </div>
         <div className="w-100 p-6 text-center">
           Don&apos;t have an Account?{" "}
