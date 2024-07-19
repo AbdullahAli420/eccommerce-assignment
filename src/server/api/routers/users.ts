@@ -39,8 +39,8 @@ export const userRouter = createTRPCRouter({
         host: "smtp.ethereal.email",
         port: 587,
         auth: {
-          user: "jamil.oreilly82@ethereal.email",
-          pass: "8dcTVxkjEpDS15UBQN",
+          user: env.smtp_user,
+          pass: env.smtp_password,
         },
       });
       const mailOptions = {

@@ -148,7 +148,7 @@ export default function Categories() {
                   ""
                 )}
                 {page >= 4 && "..."}
-                {pages.map((page: number, index: number) => {
+                {pages.map((_: number, index: number) => {
                   return (
                     <button
                       key={index}
