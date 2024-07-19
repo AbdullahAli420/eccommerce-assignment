@@ -80,6 +80,9 @@ export default function Login({
           <br />
           <Button value="LOGIN" loading={loading} />
         </form>
+        <div className="text-center">
+          Use "example@gmail.com" & "example1" for testing!
+        </div>
         <div className="w-100 p-6 text-center">
           Don&apos;t have an Account?{" "}
           <button className="font-bold" onClick={() => setForm(0)}>
