@@ -80,7 +80,7 @@ export default function Login({
           <br />
           <Button value="LOGIN" loading={loading} />
         </form>
-        <div className="text-center">
+        <div className="pt-4 text-center">
           Use &quot; example@gmail.com &quot; & &quot; example1 &quot; for
           testing!
         </div>
